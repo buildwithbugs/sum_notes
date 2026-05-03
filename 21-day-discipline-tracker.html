@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>21-Day Discipline Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─────────────────────────────────────────
+       CSS VARIABLES & RESET
+    ───────────────────────────────────────── */
+    :root {
+      --bg-primary:   #0d0f13;
+      --bg-secondary: #14171e;
+      --bg-card:      #1a1d26;
+      --bg-card-hover:#1f2330;
+      --border:       #2a2d3a;
+      --border-light: #363a4d;
+
+      --text-primary:  #e8eaf2;
+      --text-secondary:#8b8fa8;
+      --text-muted:    #4e5268;
+
+      --green:        #22c55e;
+      --green-dim:    #16a34a30;
+      --green-glow:   #22c55e40;
+      --red:          #ef4444;
+      --red-dim:      #dc262630;
+      --red-glow:     #ef444440;
+      --amber:        #f59e0b;
+      --blue:         #3b82f6;
+
+      --accent:       #6366f1;
+      --accent-dim:   #6366f120;
+      --accent-hover: #7c7ff5;
+
+      --radius-sm: 6px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --shadow-card: 0 2px 24px rgba(0,0,0,0.4);
+      --transition: 0.2s ease;
+    }
+
+    [data-theme="light"] {
+      --bg-primary:   #f0f2f8;
+      --bg-secondary: #e4e7f0;
+      --bg-card:      #ffffff;
+      --bg-card-hover:#f7f8fc;
+      --border:       #d4d8e8;
+      --border-light: #c0c5d8;
+      --text-primary:  #1a1d2e;
+      --text-secondary:#5a5f7a;
+      --text-muted:    #9296ad;
+      --green-dim:    #16a34a18;
+      --red-dim:      #dc262618;
+      --accent-dim:   #6366f114;
+      --shadow-card: 0 2px 24px rgba(0,0,0,0.08);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Barlow', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    /* ─────────────────────────────────────────
+       NOISE TEXTURE OVERLAY
+    ───────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.6;
+    }
+
+    /* ─────────────────────────────────────────
+       LAYOUT WRAPPER
+    ───────────────────────────────────────── */
+    .wrapper {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 20px 60px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ─────────────────────────────────────────
+       HEADER
+    ───────────────────────────────────────── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 32px 0 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .header-left h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      letter-spacing: 3px;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .header-left p {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    /* ─────────────────────────────────────────
+       BUTTONS (BASE)
+    ───────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 18px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all var(--transition);
+      user-select: none;
+      white-space: nowrap;
+    }
+    .btn:hover {
+      border-color: var(--border-light);
+      color: var(--text-primary);
+      background: var(--bg-card-hover);
+    }
+    .btn:active { transform: scale(0.97); }
+
+    .btn-icon {
+      padding: 9px 12px;
+      font-size: 0.9rem;
+    }
+
+    .btn-danger:hover { border-color: var(--red); color: var(--red); }
+    .btn-accent {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .btn-accent:hover {
+      background: var(--accent-dim);
+      color: var(--accent-hover);
+    }
+
+    /* ─────────────────────────────────────────
+       STATS DASHBOARD
+    ───────────────────────────────────────── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px 22px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color var(--transition), transform 0.15s;
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--stat-accent, var(--accent));
+      opacity: 0.7;
+    }
+    .stat-card:hover { transform: translateY(-2px); border-color: var(--border-light); }
+
+    .stat-card .label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .stat-card .value {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.4rem;
+      letter-spacing: 2px;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+    .stat-card .sublabel {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ─────────────────────────────────────────
+       PROGRESS BAR
+    ───────────────────────────────────────── */
+    .progress-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 22px 26px;
+      margin-bottom: 28px;
+    }
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .progress-header span {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .progress-pct {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: 1px;
+      color: var(--text-primary) !important;
+    }
+
+    .progress-track {
+      height: 8px;
+      background: var(--bg-primary);
+      border-radius: 99px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--accent), var(--green));
+      transition: width 0.6s cubic-bezier(.4,0,.2,1);
+      position: relative;
+    }
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 20px; height: 100%;
+      background: rgba(255,255,255,0.25);
+      filter: blur(4px);
+    }
+
+    .progress-segments {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+    }
+    .progress-segments span {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.58rem;
+      color: var(--text-muted);
+    }
+
+    /* ─────────────────────────────────────────
+       MOTIVATIONAL BANNER
+    ───────────────────────────────────────── */
+    .motivation-banner {
+      background: var(--accent-dim);
+      border: 1px solid var(--accent);
+      border-left: 3px solid var(--accent);
+      border-radius: var(--radius-sm);
+      padding: 12px 18px;
+      margin-bottom: 28px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-style: italic;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: fadeSlideIn 0.4s ease;
+    }
+    .motivation-banner .quote-icon {
+      font-style: normal;
+      font-size: 1.2rem;
+      opacity: 0.6;
+      flex-shrink: 0;
+    }
+
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─────────────────────────────────────────
+       SECTION LABELS
+    ───────────────────────────────────────── */
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ─────────────────────────────────────────
+       21-DAY GRID
+    ───────────────────────────────────────── */
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+    }
+
+    /* ─────────────────────────────────────────
+       DAY CARD
+    ───────────────────────────────────────── */
+    .day-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px 18px 14px;
+      transition: transform 0.15s, border-color var(--transition), box-shadow var(--transition);
+      position: relative;
+      overflow: hidden;
+      animation: cardIn 0.3s ease both;
+    }
+    .day-card:hover { transform: translateY(-2px); border-color: var(--border-light); }
+
+    /* Staggered entrance */
+    .day-card:nth-child(1)  { animation-delay: 0.02s; }
+    .day-card:nth-child(2)  { animation-delay: 0.04s; }
+    .day-card:nth-child(3)  { animation-delay: 0.06s; }
+    .day-card:nth-child(4)  { animation-delay: 0.08s; }
+    .day-card:nth-child(5)  { animation-delay: 0.10s; }
+    .day-card:nth-child(6)  { animation-delay: 0.12s; }
+    .day-card:nth-child(7)  { animation-delay: 0.14s; }
+    .day-card:nth-child(8)  { animation-delay: 0.16s; }
+    .day-card:nth-child(9)  { animation-delay: 0.18s; }
+    .day-card:nth-child(10) { animation-delay: 0.20s; }
+    .day-card:nth-child(11) { animation-delay: 0.22s; }
+    .day-card:nth-child(12) { animation-delay: 0.24s; }
+    .day-card:nth-child(13) { animation-delay: 0.26s; }
+    .day-card:nth-child(14) { animation-delay: 0.28s; }
+    .day-card:nth-child(15) { animation-delay: 0.30s; }
+    .day-card:nth-child(16) { animation-delay: 0.32s; }
+    .day-card:nth-child(17) { animation-delay: 0.34s; }
+    .day-card:nth-child(18) { animation-delay: 0.36s; }
+    .day-card:nth-child(19) { animation-delay: 0.38s; }
+    .day-card:nth-child(20) { animation-delay: 0.40s; }
+    .day-card:nth-child(21) { animation-delay: 0.42s; }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Status-based border accents */
+    .day-card.completed {
+      border-color: var(--green);
+      background: var(--green-dim);
+      box-shadow: 0 0 0 1px var(--green-glow);
+    }
+    .day-card.missed {
+      border-color: var(--red);
+      background: var(--red-dim);
+      box-shadow: 0 0 0 1px var(--red-glow);
+    }
+    .day-card.current {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent-dim), 0 4px 20px var(--accent-dim);
+    }
+    .day-card.locked { opacity: 0.45; pointer-events: none; }
+
+    /* Day number tag */
+    .day-number {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 2px;
+      line-height: 1;
+      color: var(--text-primary);
+    }
+    .day-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .day-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 99px;
+      border: 1px solid;
+    }
+    .badge-completed { color: var(--green); border-color: var(--green); background: var(--green-dim); }
+    .badge-missed    { color: var(--red);   border-color: var(--red);   background: var(--red-dim); }
+    .badge-current   { color: var(--accent);border-color: var(--accent);background: var(--accent-dim); }
+    .badge-pending   { color: var(--text-muted); border-color: var(--border); }
+
+    /* Notes input */
+    .day-note {
+      width: 100%;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-family: 'Barlow', sans-serif;
+      font-size: 0.75rem;
+      padding: 7px 10px;
+      resize: none;
+      height: 54px;
+      margin-bottom: 10px;
+      transition: border-color var(--transition);
+      outline: none;
+    }
+    .day-note:focus { border-color: var(--accent); }
+    .day-note::placeholder { color: var(--text-muted); }
+    .day-note:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Mark buttons */
+    .day-actions {
+      display: flex;
+      gap: 7px;
+    }
+    .mark-btn {
+      flex: 1;
+      padding: 8px 4px;
+      border-radius: var(--radius-sm);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.64rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: 1px solid;
+      transition: all 0.15s;
+      font-weight: 500;
+    }
+    .mark-btn:active { transform: scale(0.95); }
+
+    .btn-complete {
+      background: var(--green-dim);
+      border-color: var(--green);
+      color: var(--green);
+    }
+    .btn-complete:hover { background: #22c55e22; }
+    .btn-complete.active {
+      background: var(--green);
+      color: #fff;
+      box-shadow: 0 0 12px var(--green-glow);
+    }
+
+    .btn-miss {
+      background: var(--red-dim);
+      border-color: var(--red);
+      color: var(--red);
+    }
+    .btn-miss:hover { background: #ef444422; }
+    .btn-miss.active {
+      background: var(--red);
+      color: #fff;
+      box-shadow: 0 0 12px var(--red-glow);
+    }
+
+    .btn-complete:disabled, .btn-miss:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    /* Locked overlay */
+    .lock-icon {
+      position: absolute;
+      top: 10px; right: 12px;
+      font-size: 0.75rem;
+      opacity: 0.3;
+    }
+
+    /* ─────────────────────────────────────────
+       RESET CONFIRM MODAL
+    ───────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(6px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .modal {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 34px 36px;
+      max-width: 380px;
+      width: 90%;
+      transform: scale(0.94) translateY(10px);
+      transition: transform 0.2s;
+    }
+    .modal-overlay.open .modal { transform: scale(1) translateY(0); }
+
+    .modal h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.8rem;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
+    .modal p {
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      margin-bottom: 24px;
+    }
+    .modal-actions { display: flex; gap: 10px; }
+    .modal-actions .btn { flex: 1; justify-content: center; padding: 11px; }
+
+    /* ─────────────────────────────────────────
+       COMPLETION CELEBRATION
+    ───────────────────────────────────────── */
+    .celebration {
+      text-align: center;
+      padding: 48px 24px;
+      animation: fadeSlideIn 0.5s ease;
+      display: none;
+    }
+    .celebration.show { display: block; }
+    .celebration-icon { font-size: 4rem; margin-bottom: 16px; }
+    .celebration h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3rem;
+      letter-spacing: 4px;
+      color: var(--green);
+      margin-bottom: 8px;
+    }
+    .celebration p { color: var(--text-secondary); font-size: 0.95rem; }
+
+    /* ─────────────────────────────────────────
+       SCROLLBAR STYLING
+    ───────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 99px; }
+
+    /* ─────────────────────────────────────────
+       RESPONSIVE
+    ───────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .days-grid  { grid-template-columns: repeat(2, 1fr); }
+      .header-left h1 { font-size: 2rem; }
+      .modal { padding: 26px 22px; }
+    }
+    @media (max-width: 380px) {
+      .days-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ─────────────────────────────────────────
+       RIPPLE ANIMATION
+    ───────────────────────────────────────── */
+    @keyframes ripple {
+      0%   { transform: scale(0); opacity: 0.5; }
+      100% { transform: scale(4); opacity: 0; }
+    }
+    .ripple-effect {
+      position: absolute;
+      border-radius: 50%;
+      width: 30px; height: 30px;
+      background: rgba(255,255,255,0.15);
+      transform: scale(0);
+      animation: ripple 0.5s linear;
+      pointer-events: none;
+    }
+  </style>
+</head>
+
+<body>
+<div class="wrapper">
+
+  <!-- ── HEADER ── -->
+  <header>
+    <div class="header-left">
+      <h1>21-Day Discipline</h1>
+      <p>// Build the habit. Break the excuse.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-icon" id="themeToggle" title="Toggle theme">🌙</button>
+      <button class="btn btn-accent" id="startDateBtn">📅 Set Start Date</button>
+      <button class="btn btn-danger" id="resetBtn">↺ Reset</button>
+    </div>
+  </header>
+
+  <!-- ── MOTIVATIONAL BANNER ── -->
+  <div class="motivation-banner" id="motivationBanner">
+    <span class="quote-icon">❝</span>
+    <span id="motivationText">Loading your daily motivation...</span>
+  </div>
+
+  <!-- ── STATS GRID ── -->
+  <div class="stats-grid">
+    <div class="stat-card" style="--stat-accent: var(--green)">
+      <div class="label">Completed</div>
+      <div class="value" id="statCompleted">0</div>
+      <div class="sublabel">of 21 days</div>
+    </div>
+    <div class="stat-card" style="--stat-accent: var(--red)">
+      <div class="label">Missed</div>
+      <div class="value" id="statMissed">0</div>
+      <div class="sublabel">days so far</div>
+    </div>
+    <div class="stat-card" style="--stat-accent: var(--amber)">
+      <div class="label">Current Streak</div>
+      <div class="value" id="statStreak">0</div>
+      <div class="sublabel">consecutive days</div>
+    </div>
+    <div class="stat-card" style="--stat-accent: var(--blue)">
+      <div class="label">Days Left</div>
+      <div class="value" id="statLeft">21</div>
+      <div class="sublabel">to complete</div>
+    </div>
+  </div>
+
+  <!-- ── PROGRESS BAR ── -->
+  <div class="progress-section">
+    <div class="progress-header">
+      <span>Overall Progress</span>
+      <span class="progress-pct" id="progressPct">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+    </div>
+    <div class="progress-segments">
+      <span>0</span>
+      <span>7</span>
+      <span>14</span>
+      <span>21</span>
+    </div>
+  </div>
+
+  <!-- ── CELEBRATION (hidden until complete) ── -->
+  <div class="celebration" id="celebration">
+    <div class="celebration-icon">🏆</div>
+    <h2>Challenge Complete!</h2>
+    <p>You've conquered 21 days of discipline. The habit is yours now.</p>
+    <br>
+    <button class="btn btn-accent" id="celebrateReset" style="margin:auto; display:flex;">↺ Start a New Challenge</button>
+  </div>
+
+  <!-- ── DAYS GRID ── -->
+  <div class="section-label">21-Day Log</div>
+  <div class="days-grid" id="daysGrid"></div>
+
+</div><!-- /wrapper -->
+
+<!-- ── RESET MODAL ── -->
+<div class="modal-overlay" id="resetModal">
+  <div class="modal">
+    <h2>Reset Challenge?</h2>
+    <p>This will permanently clear all 21 days of progress, notes, and streaks. This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn" id="cancelReset">Cancel</button>
+      <button class="btn btn-danger" id="confirmReset">↺ Yes, Reset</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── START DATE MODAL ── -->
+<div class="modal-overlay" id="startDateModal">
+  <div class="modal">
+    <h2>Set Start Date</h2>
+    <p>Choose when your 21-day challenge began. Day labels will reflect actual dates.</p>
+    <input type="date" id="startDateInput"
+      style="width:100%;background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius-sm);
+             color:var(--text-primary);padding:10px 14px;font-family:'DM Mono',monospace;font-size:0.8rem;
+             margin-bottom:20px;outline:none;transition:border-color .2s;"
+    />
+    <div class="modal-actions">
+      <button class="btn" id="cancelStartDate">Cancel</button>
+      <button class="btn btn-accent" id="confirmStartDate">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   21-DAY DISCIPLINE TRACKER — JavaScript
+   ═══════════════════════════════════════════ */
+
+// ── MOTIVATIONAL QUOTES ──────────────────────
+const QUOTES = [
+  "Discipline is choosing between what you want now and what you want most.",
+  "We are what we repeatedly do. Excellence is not an act, but a habit.",
+  "The secret of your future is hidden in your daily routine.",
+  "Small disciplines repeated with consistency every day lead to great achievements.",
+  "Don't wish for it. Work for it.",
+  "Success is the sum of small efforts, repeated day in and day out.",
+  "Your habits will determine your future. Choose wisely.",
+  "One day at a time. That's all it takes — just one day.",
+  "The pain of discipline is far less than the pain of regret.",
+  "Champions aren't made in the gyms. Champions are made from something deep inside.",
+  "It's not about motivation. It's about discipline.",
+  "Every action you take is a vote for the person you wish to become.",
+  "Consistency is the true foundation of trust.",
+  "You don't rise to the level of your goals. You fall to the level of your systems.",
+  "Focus on progress, not perfection.",
+  "Hard days build strong people.",
+  "Discipline equals freedom.",
+  "The only workout you regret is the one you didn't do.",
+  "Your future self is watching. Make them proud.",
+  "Start before you're ready. Keep going even when it's hard.",
+  "21 days to build a habit. A lifetime to reap the rewards."
+];
+
+// ── STATE ─────────────────────────────────────
+const STORAGE_KEY = 'discipline_tracker_v1';
+
+function defaultState() {
+  return {
+    days: Array.from({ length: 21 }, (_, i) => ({
+      id: i + 1,
+      status: 'pending', // 'pending' | 'completed' | 'missed'
+      note: ''
+    })),
+    currentDay: 1,
+    startDate: null,
+    theme: 'dark'
+  };
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultState();
+    const saved = JSON.parse(raw);
+    // merge with defaults to handle schema updates
+    const def = defaultState();
+    return { ...def, ...saved };
+  } catch (e) {
+    return defaultState();
+  }
+}
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+let state = loadState();
+
+// ── DOM REFS ──────────────────────────────────
+const grid           = document.getElementById('daysGrid');
+const statCompleted  = document.getElementById('statCompleted');
+const statMissed     = document.getElementById('statMissed');
+const statStreak     = document.getElementById('statStreak');
+const statLeft       = document.getElementById('statLeft');
+const progressFill   = document.getElementById('progressFill');
+const progressPct    = document.getElementById('progressPct');
+const motivationText = document.getElementById('motivationText');
+const themeToggle    = document.getElementById('themeToggle');
+const resetBtn       = document.getElementById('resetBtn');
+const resetModal     = document.getElementById('resetModal');
+const cancelReset    = document.getElementById('cancelReset');
+const confirmReset   = document.getElementById('confirmReset');
+const celebration    = document.getElementById('celebration');
+const celebrateReset = document.getElementById('celebrateReset');
+const startDateBtn   = document.getElementById('startDateBtn');
+const startDateModal = document.getElementById('startDateModal');
+const startDateInput = document.getElementById('startDateInput');
+const cancelSDBtn    = document.getElementById('cancelStartDate');
+const confirmSDBtn   = document.getElementById('confirmStartDate');
+
+// ── THEME ─────────────────────────────────────
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  themeToggle.textContent = theme === 'dark' ? '🌙' : '☀️';
+  state.theme = theme;
+  saveState();
+}
+
+themeToggle.addEventListener('click', () => {
+  applyTheme(state.theme === 'dark' ? 'light' : 'dark');
+});
+
+// ── COMPUTE STATS ─────────────────────────────
+function computeStats() {
+  const completed = state.days.filter(d => d.status === 'completed').length;
+  const missed    = state.days.filter(d => d.status === 'missed').length;
+  const left      = 21 - completed - missed;
+  const pct       = Math.round((completed / 21) * 100);
+
+  // Streak: longest run of consecutive completed days from most recent
+  let streak = 0;
+  for (let i = state.currentDay - 2; i >= 0; i--) {
+    if (state.days[i].status === 'completed') streak++;
+    else break;
+  }
+
+  return { completed, missed, left, pct, streak };
+}
+
+// ── UPDATE HEADER STATS ───────────────────────
+function updateStats() {
+  const { completed, missed, left, pct, streak } = computeStats();
+
+  statCompleted.textContent = completed;
+  statMissed.textContent    = missed;
+  statStreak.textContent    = streak;
+  statLeft.textContent      = left;
+  progressFill.style.width  = pct + '%';
+  progressPct.textContent   = pct + '%';
+}
+
+// ── FORMAT DATE ───────────────────────────────
+function getDayDate(dayId) {
+  if (!state.startDate) return null;
+  const start = new Date(state.startDate);
+  start.setDate(start.getDate() + dayId - 1);
+  return start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+// ── BADGE TEXT & CLASS ────────────────────────
+function badgeInfo(status, id) {
+  if (status === 'completed') return { text: 'Done',    cls: 'badge-completed' };
+  if (status === 'missed')    return { text: 'Missed',  cls: 'badge-missed' };
+  if (id === state.currentDay) return { text: 'Today',  cls: 'badge-current' };
+  return                               { text: 'Pending', cls: 'badge-pending' };
+}
+
+// ── RIPPLE EFFECT ─────────────────────────────
+function addRipple(el, e) {
+  const rect   = el.getBoundingClientRect();
+  const r      = document.createElement('span');
+  r.className  = 'ripple-effect';
+  r.style.left = (e.clientX - rect.left - 15) + 'px';
+  r.style.top  = (e.clientY - rect.top  - 15) + 'px';
+  el.appendChild(r);
+  setTimeout(() => r.remove(), 600);
+}
+
+// ── MARK DAY ─────────────────────────────────
+function markDay(dayId, status, e) {
+  const day = state.days[dayId - 1];
+
+  // Only allow marking if it's the current day or uncompleted days
+  if (dayId > state.currentDay) return;
+  if (day.status !== 'pending' && dayId !== state.currentDay) return;
+
+  // Toggle: clicking same status clears it (only for current day)
+  if (day.status === status && dayId === state.currentDay) {
+    day.status = 'pending';
+  } else {
+    day.status = status;
+    // Advance currentDay pointer if marking today
+    if (dayId === state.currentDay && state.currentDay < 21) {
+      state.currentDay = dayId + 1;
+    }
+  }
+
+  saveState();
+  renderGrid();
+  updateStats();
+  checkCompletion();
+
+  // Ripple on button
+  if (e) addRipple(e.currentTarget, e);
+}
+
+// ── NOTE CHANGE ───────────────────────────────
+function handleNoteChange(dayId, value) {
+  state.days[dayId - 1].note = value;
+  saveState();
+}
+
+// ── CHECK COMPLETION ──────────────────────────
+function checkCompletion() {
+  const allDone = state.days.every(d => d.status !== 'pending');
+  const completedAll = state.days.every(d => d.status === 'completed');
+  if (allDone || completedAll) {
+    celebration.classList.add('show');
+    grid.style.display = 'none';
+  } else {
+    celebration.classList.remove('show');
+    grid.style.display = 'grid';
+  }
+}
+
+// ── RENDER GRID ───────────────────────────────
+function renderGrid() {
+  grid.innerHTML = '';
+
+  state.days.forEach(day => {
+    const isCurrent  = day.id === state.currentDay;
+    const isPast     = day.id < state.currentDay;
+    const isFuture   = day.id > state.currentDay;
+    const { text: badgeText, cls: badgeCls } = badgeInfo(day.status, day.id);
+    const dateLabel  = getDayDate(day.id);
+
+    // Card classes
+    let cardCls = 'day-card';
+    if (day.status === 'completed') cardCls += ' completed';
+    else if (day.status === 'missed') cardCls += ' missed';
+    else if (isCurrent) cardCls += ' current';
+    else if (isFuture)  cardCls += ' locked';
+
+    // Disable conditions
+    const locked = isFuture;
+    const alreadyMarked = day.status !== 'pending' && !isCurrent;
+    const btnDisabled = locked || alreadyMarked ? 'disabled' : '';
+    const noteDisabled = locked ? 'disabled' : '';
+
+    const card = document.createElement('div');
+    card.className = cardCls;
+    card.innerHTML = `
+      ${isFuture ? '<span class="lock-icon">🔒</span>' : ''}
+      <div class="day-tag">
+        <span class="day-number">Day ${day.id}</span>
+        <span class="day-badge ${badgeCls}">${badgeText}</span>
+      </div>
+      ${dateLabel ? `<div style="font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--text-muted);margin-bottom:8px;letter-spacing:1px">${dateLabel}</div>` : ''}
+      <textarea
+        class="day-note"
+        placeholder="Add a note for day ${day.id}..."
+        data-id="${day.id}"
+        ${noteDisabled ? 'disabled' : ''}
+        maxlength="200"
+      >${day.note}</textarea>
+      <div class="day-actions">
+        <button
+          class="mark-btn btn-complete ${day.status === 'completed' ? 'active' : ''}"
+          data-id="${day.id}"
+          data-status="completed"
+          ${btnDisabled}
+        >✔ Done</button>
+        <button
+          class="mark-btn btn-miss ${day.status === 'missed' ? 'active' : ''}"
+          data-id="${day.id}"
+          data-status="missed"
+          ${btnDisabled}
+        >✘ Miss</button>
+      </div>
+    `;
+
+    // Note listener
+    const textarea = card.querySelector('.day-note');
+    if (textarea) {
+      textarea.addEventListener('change', () => handleNoteChange(day.id, textarea.value));
+    }
+
+    // Button listeners
+    card.querySelectorAll('.mark-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id     = parseInt(btn.dataset.id);
+        const status = btn.dataset.status;
+        markDay(id, status, e);
+      });
+    });
+
+    grid.appendChild(card);
+  });
+}
+
+// ── MOTIVATION ────────────────────────────────
+function showMotivation() {
+  const { completed } = computeStats();
+  // Use completed count to cycle through quotes
+  const idx = completed % QUOTES.length;
+  motivationText.textContent = QUOTES[idx];
+}
+
+// ── RESET ─────────────────────────────────────
+resetBtn.addEventListener('click', () => resetModal.classList.add('open'));
+cancelReset.addEventListener('click', () => resetModal.classList.remove('open'));
+
+confirmReset.addEventListener('click', () => {
+  state = defaultState();
+  state.theme = document.documentElement.getAttribute('data-theme');
+  saveState();
+  resetModal.classList.remove('open');
+  showMotivation();
+  renderGrid();
+  updateStats();
+  checkCompletion();
+});
+
+celebrateReset.addEventListener('click', () => {
+  state = defaultState();
+  state.theme = document.documentElement.getAttribute('data-theme');
+  saveState();
+  celebration.classList.remove('show');
+  grid.style.display = 'grid';
+  showMotivation();
+  renderGrid();
+  updateStats();
+});
+
+// ── START DATE ────────────────────────────────
+startDateBtn.addEventListener('click', () => {
+  startDateInput.value = state.startDate || new Date().toISOString().split('T')[0];
+  startDateModal.classList.add('open');
+});
+cancelSDBtn.addEventListener('click', () => startDateModal.classList.remove('open'));
+confirmSDBtn.addEventListener('click', () => {
+  state.startDate = startDateInput.value || null;
+  saveState();
+  startDateModal.classList.remove('open');
+  renderGrid();
+});
+
+// Close modals on overlay click
+[resetModal, startDateModal].forEach(modal => {
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) modal.classList.remove('open');
+  });
+});
+
+// ── INIT ─────────────────────────────────────
+function init() {
+  applyTheme(state.theme || 'dark');
+  showMotivation();
+  renderGrid();
+  updateStats();
+  checkCompletion();
+}
+
+init();
+</script>
+</body>
+</html>
